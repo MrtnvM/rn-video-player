@@ -17,7 +17,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timeLabel: {
-    fontFamily: 'SF Pro Display',
     fontStyle: 'normal',
     fontWeight: '700',
     fontSize: 14,
