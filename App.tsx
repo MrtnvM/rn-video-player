@@ -2,6 +2,7 @@ import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import React from 'react';
 import {Button, Text, View} from 'react-native';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import Video from 'react-native-video';
 import {MediaFilesContextProvider} from './src/context/MediaFilesContextProvider';
 import {MediaFilesScreen} from './src/screen/media_files/MediaFilesScreen';
@@ -27,44 +28,46 @@ const Stack = createNativeStackNavigator();
 
 function App() {
   return (
-    <MediaFilesContextProvider>
-      <NavigationContainer>
-        <Stack.Navigator>
-          <Stack.Group>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen
-              name="MediaFiles"
-              component={MediaFilesScreen}
-              options={{headerShown: false, presentation: 'transparentModal'}}
-            />
-            <Stack.Screen
-              name="MockVideo"
-              component={MockVideo}
-              options={{headerShown: true, presentation: 'card'}}
-            />
-          </Stack.Group>
-          <Stack.Group screenOptions={{presentation: 'fullScreenModal'}}>
-            <Stack.Screen
-              name="Trimming"
-              component={TrimmingScreen}
-              options={{
-                title: 'Adjust Clips',
-                contentStyle: {backgroundColor: 'black'},
-                headerStyle: {backgroundColor: 'black'},
-                headerTitleStyle: {color: 'white'},
-                headerRight: () => (
-                  <Button
-                    onPress={() => console.log('Trimming result saved')}
-                    title="Save"
-                    color="#fff"
-                  />
-                ),
-              }}
-            />
-          </Stack.Group>
-        </Stack.Navigator>
-      </NavigationContainer>
-    </MediaFilesContextProvider>
+    <GestureHandlerRootView style={{flex: 1}}>
+      <MediaFilesContextProvider>
+        <NavigationContainer>
+          <Stack.Navigator>
+            <Stack.Group>
+              <Stack.Screen name="Home" component={HomeScreen} />
+              <Stack.Screen
+                name="MediaFiles"
+                component={MediaFilesScreen}
+                options={{headerShown: false, presentation: 'transparentModal'}}
+              />
+              <Stack.Screen
+                name="MockVideo"
+                component={MockVideo}
+                options={{headerShown: true, presentation: 'card'}}
+              />
+            </Stack.Group>
+            <Stack.Group screenOptions={{presentation: 'fullScreenModal'}}>
+              <Stack.Screen
+                name="Trimming"
+                component={TrimmingScreen}
+                options={{
+                  title: 'Adjust Clips',
+                  contentStyle: {backgroundColor: 'black'},
+                  headerStyle: {backgroundColor: 'black'},
+                  headerTitleStyle: {color: 'white'},
+                  headerRight: () => (
+                    <Button
+                      onPress={() => console.log('Trimming result saved')}
+                      title="Save"
+                      color="#fff"
+                    />
+                  ),
+                }}
+              />
+            </Stack.Group>
+          </Stack.Navigator>
+        </NavigationContainer>
+      </MediaFilesContextProvider>
+    </GestureHandlerRootView>
   );
 }
 

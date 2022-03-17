@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   FlatList,
   Image,
@@ -28,25 +28,31 @@ const TrimmerBorderContent = (props: {style: StyleProp<ViewStyle>}) => {
 
 const videoThumbnail = require('../../../res/images/thumbnail3.png');
 
+type Item = {
+  id: number;
+  thumbnail: any;
+};
+
 const SelectedArea = () => {
+  const [data] = useState<Item[]>([
+    {id: 1, thumbnail: videoThumbnail},
+    {id: 2, thumbnail: videoThumbnail},
+    {id: 3, thumbnail: videoThumbnail},
+    {id: 4, thumbnail: videoThumbnail},
+    {id: 5, thumbnail: videoThumbnail},
+    {id: 6, thumbnail: videoThumbnail},
+    {id: 7, thumbnail: videoThumbnail},
+    {id: 8, thumbnail: videoThumbnail},
+    {id: 9, thumbnail: videoThumbnail},
+  ]);
+
   return (
     <View style={styles.selectedArea} pointerEvents="none">
       <FlatList
-        horizontal={true}
+        horizontal
         contentInset={{left: 0, top: 0, right: 0, bottom: 0}}
-        data={[
-          {id: 1, thumbnail: videoThumbnail},
-          {id: 2, thumbnail: videoThumbnail},
-          {id: 3, thumbnail: videoThumbnail},
-          {id: 4, thumbnail: videoThumbnail},
-          {id: 5, thumbnail: videoThumbnail},
-          {id: 6, thumbnail: videoThumbnail},
-          {id: 7, thumbnail: videoThumbnail},
-          {id: 8, thumbnail: videoThumbnail},
-          {id: 9, thumbnail: videoThumbnail},
-        ]}
+        data={data}
         keyExtractor={i => i.id.toString()}
-        ItemSeparatorComponent={() => <View />}
         renderItem={({item}) => <Image source={item.thumbnail} />}
       />
     </View>

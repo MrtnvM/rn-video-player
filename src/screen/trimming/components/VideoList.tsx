@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import {
-  FlatList,
   Image,
   ImageSourcePropType,
   StyleSheet,
@@ -9,6 +8,10 @@ import {
   View,
 } from 'react-native';
 import {getVideoDurationString} from '../../../utils/duration';
+import DraggableFlatList, {
+  RenderItemParams,
+  ScaleDecorator,
+} from 'react-native-draggable-flatlist';
 
 type VideoData = {
   id: number;
@@ -28,19 +31,10 @@ const videos: VideoData[] = [
     thumbnail: require('../../../res/images/thumbnail2.png'),
     seconds: 3600,
   },
-  {
-    id: 0,
-    thumbnail: require('../../../res/images/plus_icon.png'),
-    seconds: 0,
-  },
 ];
 
-const VideoListItem = (props: {
-  video: VideoData;
-  isSelected: boolean;
-  selectVideo: (video: VideoData) => void;
-}) => {
-  const {video, isSelected, selectVideo} = props;
+const VideoListItem = (props: {video: VideoData; isSelected: boolean}) => {
+  const {video, isSelected} = props;
   const style = isSelected
     ? styles.selectedVideoItem
     : styles.unselectedVideoItem;
@@ -50,16 +44,14 @@ const VideoListItem = (props: {
     : styles.videoItemContainer;
 
   return (
-    <TouchableOpacity
-      onPress={() => selectVideo(video)}
-      style={[containerStyle]}>
+    <View style={[containerStyle]}>
       <View style={styles.videoItem}>
         <Image source={video.thumbnail} style={style} />
         <Text style={styles.timeLabel}>
           {getVideoDurationString(video.seconds)}
         </Text>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
@@ -75,30 +67,34 @@ const AddVideoButton = () => {
 };
 
 export const VideoList = () => {
+  const [data, setData] = useState(videos);
   const [selectedVideo, setSelectedVideo] = useState(videos[0]);
 
+  const renderItem = ({item, drag, isActive}: RenderItemParams<VideoData>) => {
+    const isSelected = selectedVideo.id === item.id;
+
+    return (
+      <ScaleDecorator>
+        <TouchableOpacity
+          onPress={() => setSelectedVideo(item)}
+          onLongPress={drag}
+          disabled={isActive}>
+          <VideoListItem video={item} isSelected={isSelected} />
+        </TouchableOpacity>
+      </ScaleDecorator>
+    );
+  };
+
   return (
-    <FlatList
+    <DraggableFlatList
       horizontal={true}
       contentInset={{left: 20, right: 20}}
       keyExtractor={item => item.id.toString()}
-      data={videos}
+      data={data}
+      onDragEnd={p => setData(p.data)}
       ItemSeparatorComponent={() => <View style={styles.separator} />}
-      renderItem={({item}) => {
-        const isSelected = selectedVideo.id === item.id;
-
-        if (item.id === 0) {
-          return <AddVideoButton />;
-        }
-
-        return (
-          <VideoListItem
-            video={item}
-            isSelected={isSelected}
-            selectVideo={setSelectedVideo}
-          />
-        );
-      }}
+      ListFooterComponent={<AddVideoButton />}
+      renderItem={renderItem}
     />
   );
 };
@@ -144,6 +140,7 @@ const styles = StyleSheet.create({
     height: 50,
     width: 50,
     marginTop: 5,
+    marginLeft: 10,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 3,
