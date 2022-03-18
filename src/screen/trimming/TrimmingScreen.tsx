@@ -4,7 +4,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 import {DragAndDropLabel} from './components/DragAndDropLabel';
 import {SelectedTimeLabel} from './components/SelectedTimeLabel';
-import {TrimmerBar} from './components/TrimmerBar';
+import {TrimmerBar} from './components/trimmer_bar/TrimmerBar';
 import {VideoList} from './components/VideoList';
 import {useTrimmingNavigationBar} from './hooks/useTrimmingNavigationBar';
 
