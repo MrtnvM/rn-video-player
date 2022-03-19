@@ -78,6 +78,36 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
     },
   });
 
+  const edgesPanEvent = useAnimatedGestureHandler<
+    PanGestureHandlerGestureEvent,
+    ContextType
+  >({
+    onStart: (event, context) => {
+      context.leftOffset = leftOffset.value;
+      context.rightOffset = rightOffset.value;
+    },
+    onActive: (event, context) => {
+      const calculatedRightOffset = event.translationX + context.rightOffset;
+      const maxPossibleRightOffset =
+        -maxWidth + leftOffset.value + EDGE_WIDTH / 2;
+      const newRightOffset = Math.min(
+        Math.max(calculatedRightOffset, maxPossibleRightOffset),
+        0,
+      );
+
+      rightOffset.value = newRightOffset;
+
+      const calculatedLeftOffset = event.translationX + context.leftOffset;
+      const maxPossibleLeftOffset =
+        maxWidth + rightOffset.value - EDGE_WIDTH / 2;
+      const newLeftOffset = Math.min(
+        Math.max(calculatedLeftOffset, 0),
+        maxPossibleLeftOffset,
+      );
+      leftOffset.value = newLeftOffset;
+    },
+  });
+
   const edgesStyle = useAnimatedStyle(() => ({
     position: 'absolute',
     left: leftOffset.value,
@@ -86,11 +116,16 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
 
   return (
     <Animated.View style={[styles.trimmerEdgesContainer, edgesStyle]}>
+      <PanGestureHandler onGestureEvent={edgesPanEvent}>
+        <Animated.View style={styles.edgesBackgroundView} />
+      </PanGestureHandler>
+
       <PanGestureHandler onGestureEvent={leftEdgePanEvent}>
-        <Animated.View>
+        <Animated.View style={styles.leftEdgeStyle}>
           <LeftTrimmerBorder />
         </Animated.View>
       </PanGestureHandler>
+
       <PanGestureHandler onGestureEvent={rightEdgePanEvent}>
         <Animated.View style={styles.rightEdgeStyle}>
           <RightTrimmerBorder />
@@ -136,8 +171,16 @@ const styles = StyleSheet.create({
     top: 0,
     position: 'absolute',
   },
+  leftEdgeStyle: {
+    position: 'absolute',
+    left: 0,
+  },
   rightEdgeStyle: {
     position: 'absolute',
     right: 0,
+  },
+  edgesBackgroundView: {
+    flex: 1,
+    backgroundColor: '#11333333',
   },
 });
