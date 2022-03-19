@@ -1,5 +1,5 @@
 import React from 'react';
-import {Image, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {
   PanGestureHandler,
   PanGestureHandlerGestureEvent,
@@ -9,30 +9,12 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
-
-const EDGE_WIDTH = 13;
+import {EDGE_WIDTH} from '../trimmer_bar_consts';
+import {LeftTrimmerBorder, RightTrimmerBorder} from './TrimmerBorders';
 
 type ContextType = {
   leftOffset: number;
   rightOffset: number;
-};
-
-const LeftTrimmerBorder = () => {
-  return <TrimmerBorderContent style={styles.leftTrimmerBorder} />;
-};
-
-const RightTrimmerBorder = () => {
-  return <TrimmerBorderContent style={styles.rightTrimmerBorder} />;
-};
-
-const TrimmerBorderContent = (props: {style: StyleProp<ViewStyle>}) => {
-  const {style} = props;
-
-  return (
-    <View style={[styles.trimmerBorder, style]}>
-      <Image source={require('../../../../res/images/trimmer_edge_icon.png')} />
-    </View>
-  );
 };
 
 export const TrimmerEdgesView = (props: {maxWidth: number}) => {
@@ -55,6 +37,7 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
         Math.max(calculatedOffset, 0),
         maxPossibleOffset,
       );
+
       leftOffset.value = newOffset;
     },
   });
@@ -87,16 +70,6 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
       context.rightOffset = rightOffset.value;
     },
     onActive: (event, context) => {
-      const calculatedRightOffset = event.translationX + context.rightOffset;
-      const maxPossibleRightOffset =
-        -maxWidth + leftOffset.value + EDGE_WIDTH / 2;
-      const newRightOffset = Math.min(
-        Math.max(calculatedRightOffset, maxPossibleRightOffset),
-        0,
-      );
-
-      rightOffset.value = newRightOffset;
-
       const calculatedLeftOffset = event.translationX + context.leftOffset;
       const maxPossibleLeftOffset =
         maxWidth + rightOffset.value - EDGE_WIDTH / 2;
@@ -105,11 +78,19 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
         maxPossibleLeftOffset,
       );
       leftOffset.value = newLeftOffset;
+
+      const calculatedRightOffset = event.translationX + context.rightOffset;
+      const maxPossibleRightOffset =
+        -maxWidth + leftOffset.value + EDGE_WIDTH / 2;
+      const newRightOffset = Math.min(
+        Math.max(calculatedRightOffset, maxPossibleRightOffset),
+        0,
+      );
+      rightOffset.value = newRightOffset;
     },
   });
 
   const edgesStyle = useAnimatedStyle(() => ({
-    position: 'absolute',
     left: leftOffset.value,
     right: -rightOffset.value,
   }));
@@ -148,28 +129,6 @@ const styles = StyleSheet.create({
     borderColor: trimmerColor,
     borderWidth: 2,
     borderRadius: 4,
-  },
-  trimmerBorder: {
-    flexDirection: 'row',
-    width: 13,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: trimmerColor,
-    height: 44,
-  },
-  leftTrimmerBorder: {
-    borderTopLeftRadius: 2,
-    borderBottomLeftRadius: 2,
-    left: 0,
-    top: 0,
-    position: 'absolute',
-  },
-  rightTrimmerBorder: {
-    borderTopRightRadius: 3,
-    borderBottomRightRadius: 3,
-    right: 0,
-    top: 0,
-    position: 'absolute',
   },
   leftEdgeStyle: {
     position: 'absolute',

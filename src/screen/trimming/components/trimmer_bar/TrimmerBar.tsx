@@ -1,7 +1,7 @@
 import React, {useCallback, useState} from 'react';
 import {Dimensions, LayoutChangeEvent, StyleSheet, View} from 'react-native';
-import {ThumbnailsBackground} from './ThumbnailsBackground';
-import {TrimmerEdgesView} from './TrimmerEdgesView';
+import {ThumbnailsBackground} from './components/ThumbnailsBackground';
+import {TrimmerEdgesView} from './components/TrimmerEdgesView';
 
 const HORIZONTAL_MARGIN = 12;
 

@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {FlatList, Image, StyleSheet, View} from 'react-native';
 
-const videoThumbnail = require('../../../../res/images/thumbnail3.png');
+const videoThumbnail = require('../../../../../res/images/thumbnail3.png');
 
 type Item = {
   id: number;
