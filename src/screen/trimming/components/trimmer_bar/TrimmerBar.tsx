@@ -1,11 +1,21 @@
 import React, {useCallback, useState} from 'react';
 import {Dimensions, LayoutChangeEvent, StyleSheet, View} from 'react-native';
-import {ThumbnailsBackground} from './components/ThumbnailsBackground';
+import {Seconds, VideoData} from '../../models/video_data';
 import {TrimmerEdgesView} from './components/TrimmerEdgesView';
 
 const HORIZONTAL_MARGIN = 12;
 
-export const TrimmerBar = () => {
+type Props = {
+  video: VideoData;
+  selectVideoInterval(params: {
+    videoId: number;
+    start: Seconds;
+    end: Seconds;
+  }): void;
+};
+
+export const TrimmerBar = (props: Props) => {
+  const {video, selectVideoInterval} = props;
   const [maxWidth, setMaxWidth] = useState(
     Dimensions.get('window').width - HORIZONTAL_MARGIN * 2,
   );
@@ -16,15 +26,18 @@ export const TrimmerBar = () => {
 
   return (
     <View style={styles.container} onLayout={updateMaxWidth}>
-      <ThumbnailsBackground />
-      <TrimmerEdgesView maxWidth={maxWidth} />
+      <TrimmerEdgesView
+        video={video}
+        maxWidth={maxWidth}
+        selectVideoInterval={selectVideoInterval}
+      />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    height: 48,
+    height: 123,
     marginHorizontal: HORIZONTAL_MARGIN,
     flexDirection: 'row',
   },

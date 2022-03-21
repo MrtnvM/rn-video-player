@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {Image, StyleProp, StyleSheet, View, ViewStyle} from 'react-native';
 import {TRIMMER_COLOR} from '../trimmer_bar_consts';
 
@@ -15,11 +15,17 @@ const TrimmerBorderContent = (props: {style: StyleProp<ViewStyle>}) => {
 };
 
 export const LeftTrimmerBorder = () => {
-  return <TrimmerBorderContent style={styles.leftTrimmerBorder} />;
+  return useMemo(
+    () => <TrimmerBorderContent style={styles.leftTrimmerBorder} />,
+    [],
+  );
 };
 
 export const RightTrimmerBorder = () => {
-  return <TrimmerBorderContent style={styles.rightTrimmerBorder} />;
+  return useMemo(
+    () => <TrimmerBorderContent style={styles.rightTrimmerBorder} />,
+    [],
+  );
 };
 
 const styles = StyleSheet.create({
@@ -29,7 +35,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: TRIMMER_COLOR,
-    height: 44,
+    height: 48,
   },
   leftTrimmerBorder: {
     borderTopLeftRadius: 2,
@@ -39,8 +45,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
   },
   rightTrimmerBorder: {
-    borderTopRightRadius: 3,
-    borderBottomRightRadius: 3,
+    borderTopRightRadius: 2,
+    borderBottomRightRadius: 2,
     right: 0,
     top: 0,
     position: 'absolute',

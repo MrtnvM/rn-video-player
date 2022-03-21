@@ -38,8 +38,8 @@ const styles = StyleSheet.create({
   container: {
     position: 'absolute',
     top: 3,
-    left: 0,
-    right: 0,
+    left: 2,
+    right: 2,
     bottom: 3,
   },
 });

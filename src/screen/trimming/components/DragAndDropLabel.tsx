@@ -1,11 +1,14 @@
-import React from 'react';
+import React, {useMemo} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
 
 export const DragAndDropLabel = () => {
-  return (
-    <View style={styles.container}>
-      <Text style={styles.timeLabel}>Tap to edit, drag to reorder</Text>
-    </View>
+  return useMemo(
+    () => (
+      <View style={styles.container}>
+        <Text style={styles.timeLabel}>Tap to edit, drag to reorder</Text>
+      </View>
+    ),
+    [],
   );
 };
 

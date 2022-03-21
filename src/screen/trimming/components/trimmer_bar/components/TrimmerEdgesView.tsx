@@ -1,5 +1,5 @@
-import React from 'react';
-import {StyleSheet} from 'react-native';
+import React, {useEffect} from 'react';
+import {StyleSheet, View} from 'react-native';
 import {
   PanGestureHandler,
   PanGestureHandlerGestureEvent,
@@ -9,7 +9,10 @@ import Animated, {
   useAnimatedStyle,
   useSharedValue,
 } from 'react-native-reanimated';
+import {ReText} from 'react-native-redash';
+import {Seconds, VideoData} from '../../../models/video_data';
 import {EDGE_WIDTH} from '../trimmer_bar_consts';
+import {ThumbnailsBackground} from './ThumbnailsBackground';
 import {LeftTrimmerBorder, RightTrimmerBorder} from './TrimmerBorders';
 
 type ContextType = {
@@ -17,11 +20,25 @@ type ContextType = {
   rightOffset: number;
 };
 
-export const TrimmerEdgesView = (props: {maxWidth: number}) => {
-  const {maxWidth} = props;
+export const TrimmerEdgesView = (props: {
+  video: VideoData;
+  maxWidth: number;
+  selectVideoInterval(params: {
+    videoId: number;
+    start: Seconds;
+    end: Seconds;
+  }): void;
+}) => {
+  const {video, maxWidth} = props;
 
+  const selectedSeconds = useSharedValue('');
   const leftOffset = useSharedValue(0);
   const rightOffset = useSharedValue(0);
+
+  useEffect(() => {
+    const videoDuration = video.length.toFixed(1) + 's selected';
+    selectedSeconds.value = videoDuration;
+  }, [video, selectedSeconds]);
 
   const leftEdgePanEvent = useAnimatedGestureHandler<
     PanGestureHandlerGestureEvent,
@@ -39,6 +56,14 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
       );
 
       leftOffset.value = newOffset;
+
+      const totalSeconds = video.length;
+      const start = totalSeconds * (leftOffset.value / maxWidth);
+      const end =
+        totalSeconds - totalSeconds * (Math.abs(rightOffset.value) / maxWidth);
+
+      const seconds = (end - start).toFixed(1) + 's selected';
+      selectedSeconds.value = seconds;
     },
   });
 
@@ -58,6 +83,14 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
       );
 
       rightOffset.value = newOffset;
+
+      const totalSeconds = video.length;
+      const start = totalSeconds * (leftOffset.value / maxWidth);
+      const end =
+        totalSeconds - totalSeconds * (Math.abs(rightOffset.value) / maxWidth);
+
+      const seconds = (end - start).toFixed(1) + 's selected';
+      selectedSeconds.value = seconds;
     },
   });
 
@@ -87,6 +120,14 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
         0,
       );
       rightOffset.value = newRightOffset;
+
+      const totalSeconds = video.length;
+      const start = totalSeconds * (leftOffset.value / maxWidth);
+      const end =
+        totalSeconds - totalSeconds * (Math.abs(rightOffset.value) / maxWidth);
+
+      const seconds = (end - start).toFixed(1) + 's selected';
+      selectedSeconds.value = seconds;
     },
   });
 
@@ -96,29 +137,54 @@ export const TrimmerEdgesView = (props: {maxWidth: number}) => {
   }));
 
   return (
-    <Animated.View style={[styles.trimmerEdgesContainer, edgesStyle]}>
-      <PanGestureHandler onGestureEvent={edgesPanEvent}>
-        <Animated.View style={styles.edgesBackgroundView} />
-      </PanGestureHandler>
+    <View style={styles.container}>
+      <ReText style={styles.timeLabel} text={selectedSeconds} />
 
-      <PanGestureHandler onGestureEvent={leftEdgePanEvent}>
-        <Animated.View style={styles.leftEdgeStyle}>
-          <LeftTrimmerBorder />
-        </Animated.View>
-      </PanGestureHandler>
+      <View style={styles.trimmerEdgesWrapper}>
+        <View style={styles.trimmerEdgesInnerWrapper}>
+          <ThumbnailsBackground />
 
-      <PanGestureHandler onGestureEvent={rightEdgePanEvent}>
-        <Animated.View style={styles.rightEdgeStyle}>
-          <RightTrimmerBorder />
-        </Animated.View>
-      </PanGestureHandler>
-    </Animated.View>
+          <Animated.View style={[styles.trimmerEdgesContainer, edgesStyle]}>
+            <PanGestureHandler onGestureEvent={edgesPanEvent}>
+              <Animated.View style={styles.edgesBackgroundView} />
+            </PanGestureHandler>
+
+            <PanGestureHandler onGestureEvent={leftEdgePanEvent}>
+              <Animated.View style={styles.leftEdgeStyle}>
+                <LeftTrimmerBorder />
+              </Animated.View>
+            </PanGestureHandler>
+
+            <PanGestureHandler onGestureEvent={rightEdgePanEvent}>
+              <Animated.View style={styles.rightEdgeStyle}>
+                <RightTrimmerBorder />
+              </Animated.View>
+            </PanGestureHandler>
+          </Animated.View>
+        </View>
+      </View>
+    </View>
   );
 };
 
 const trimmerColor = '#2D6AC7';
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
+  trimmerEdgesWrapper: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  trimmerEdgesInnerWrapper: {
+    width: '100%',
+    height: 54,
+  },
+
   trimmerEdgesContainer: {
     position: 'absolute',
     top: 0,
@@ -129,6 +195,7 @@ const styles = StyleSheet.create({
     borderColor: trimmerColor,
     borderWidth: 2,
     borderRadius: 4,
+    height: 51,
   },
   leftEdgeStyle: {
     position: 'absolute',
@@ -141,5 +208,13 @@ const styles = StyleSheet.create({
   edgesBackgroundView: {
     flex: 1,
     backgroundColor: '#11333333',
+  },
+  timeLabel: {
+    marginVertical: 16,
+    fontStyle: 'normal',
+    fontWeight: '700',
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#FFFFFF',
   },
 });

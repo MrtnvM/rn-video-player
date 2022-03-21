@@ -3,12 +3,14 @@ import {StyleSheet, View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import Video from 'react-native-video';
 import {DragAndDropLabel} from './components/DragAndDropLabel';
-import {SelectedTimeLabel} from './components/SelectedTimeLabel';
 import {TrimmerBar} from './components/trimmer_bar/TrimmerBar';
 import {VideoList} from './components/VideoList';
 import {useTrimmingNavigationBar} from './hooks/useTrimmingNavigationBar';
+import {useVideoState} from './hooks/useVideoState';
 
 export const TrimmingScreen = () => {
+  const videoState = useVideoState();
+
   useTrimmingNavigationBar();
 
   return (
@@ -22,10 +24,16 @@ export const TrimmingScreen = () => {
       </View>
 
       <SafeAreaView>
-        <SelectedTimeLabel />
-        <TrimmerBar />
+        <TrimmerBar
+          video={videoState.selectedVideo.video}
+          selectVideoInterval={videoState.selectVideoInterval}
+        />
         <DragAndDropLabel />
-        <VideoList />
+        <VideoList
+          videos={videoState.videos}
+          selectedVideo={videoState.selectedVideo.video}
+          selectVideo={videoState.selectVideo}
+        />
       </SafeAreaView>
     </View>
   );

@@ -1,37 +1,11 @@
-import React, {useState} from 'react';
-import {
-  Image,
-  ImageSourcePropType,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import React, {useCallback, useState} from 'react';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {getVideoDurationString} from '../../../utils/duration';
 import DraggableFlatList, {
   RenderItemParams,
   ScaleDecorator,
 } from 'react-native-draggable-flatlist';
-
-type VideoData = {
-  id: number;
-  thumbnail: ImageSourcePropType;
-  seconds: number;
-};
-
-const videos: VideoData[] = [
-  {
-    id: 1,
-    thumbnail: require('../../../res/images/thumbnail1.png'),
-    seconds: 10,
-  },
-  {id: 2, thumbnail: require('../../../res/images/thumbnail2.png'), seconds: 9},
-  {
-    id: 3,
-    thumbnail: require('../../../res/images/thumbnail2.png'),
-    seconds: 3600,
-  },
-];
+import {VideoData} from '../models/video_data';
 
 const VideoListItem = (props: {video: VideoData; isSelected: boolean}) => {
   const {video, isSelected} = props;
@@ -48,7 +22,7 @@ const VideoListItem = (props: {video: VideoData; isSelected: boolean}) => {
       <View style={styles.videoItem}>
         <Image source={video.thumbnail} style={style} />
         <Text style={styles.timeLabel}>
-          {getVideoDurationString(video.seconds)}
+          {getVideoDurationString(video.length)}
         </Text>
       </View>
     </View>
@@ -66,24 +40,31 @@ const AddVideoButton = () => {
   );
 };
 
-export const VideoList = () => {
+export const VideoList = (props: {
+  videos: VideoData[];
+  selectedVideo: VideoData;
+  selectVideo: (video: VideoData) => void;
+}) => {
+  const {videos, selectedVideo, selectVideo} = props;
   const [data, setData] = useState(videos);
-  const [selectedVideo, setSelectedVideo] = useState(videos[0]);
 
-  const renderItem = ({item, drag, isActive}: RenderItemParams<VideoData>) => {
-    const isSelected = selectedVideo.id === item.id;
+  const renderItem = useCallback(
+    ({item, drag, isActive}: RenderItemParams<VideoData>) => {
+      const isSelected = selectedVideo.id === item.id;
 
-    return (
-      <ScaleDecorator>
-        <TouchableOpacity
-          onPress={() => setSelectedVideo(item)}
-          onLongPress={drag}
-          disabled={isActive}>
-          <VideoListItem video={item} isSelected={isSelected} />
-        </TouchableOpacity>
-      </ScaleDecorator>
-    );
-  };
+      return (
+        <ScaleDecorator>
+          <TouchableOpacity
+            onPress={() => selectVideo(item)}
+            onLongPress={drag}
+            disabled={isActive}>
+            <VideoListItem video={item} isSelected={isSelected} />
+          </TouchableOpacity>
+        </ScaleDecorator>
+      );
+    },
+    [selectVideo, selectedVideo.id],
+  );
 
   return (
     <DraggableFlatList
