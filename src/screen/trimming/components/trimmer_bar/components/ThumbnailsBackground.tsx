@@ -22,7 +22,7 @@ export const ThumbnailsBackground = () => {
   ]);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} pointerEvents="none">
       <FlatList
         horizontal
         contentInset={{left: 0, top: 0, right: 0, bottom: 0}}

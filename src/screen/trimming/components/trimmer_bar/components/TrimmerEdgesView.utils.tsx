@@ -19,14 +19,14 @@ export function updateSelectedSecondsWorklet(params: {
 }) {
   'worklet';
 
-  const {video, maxWidth, leftOffset, rightOffset, selectedSeconds} =
-    params.context;
+  const {context} = params;
+  const {video, maxWidth, leftOffset, rightOffset, selectedSeconds} = context;
   const totalSeconds = video.length;
   const start = totalSeconds * (leftOffset.value / maxWidth);
   const end =
     totalSeconds - totalSeconds * (Math.abs(rightOffset.value) / maxWidth);
 
-  const seconds = (end - start).toFixed(1) + 's selected';
+  const seconds = Math.abs(end - start).toFixed(1) + 's selected';
   selectedSeconds.value = seconds;
 }
 

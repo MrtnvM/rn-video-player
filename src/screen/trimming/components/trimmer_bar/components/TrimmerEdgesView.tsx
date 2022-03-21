@@ -11,7 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import {ReText} from 'react-native-redash';
 import {VideoConfig} from '../../../models/video_config';
-import {Seconds, VideoData} from '../../../models/video_data';
+import {VideoData} from '../../../models/video_data';
 import {ThumbnailsBackground} from './ThumbnailsBackground';
 import {LeftTrimmerBorder, RightTrimmerBorder} from './TrimmerBorders';
 import {
@@ -30,22 +30,25 @@ export const TrimmerEdgesView = (props: {
   video: VideoData;
   videoConfig: VideoConfig;
   maxWidth: number;
-  selectVideoInterval(params: {
-    videoId: number;
-    start: Seconds;
-    end: Seconds;
-  }): void;
 }) => {
   const {video, videoConfig, maxWidth} = props;
 
   const selectedSeconds = useSharedValue('');
-  const leftOffset = useSharedValue(0);
-  const rightOffset = useSharedValue(0);
+  const leftOffset = useSharedValue(videoConfig.selectedInterval.start);
+  const rightOffset = useSharedValue(
+    Math.abs((video.length - videoConfig.selectedInterval.end) / video.length) *
+      maxWidth,
+  );
 
   useEffect(() => {
-    const videoDuration = video.length.toFixed(1) + 's selected';
+    const {start, end} = videoConfig.selectedInterval;
+    const videoDuration = (end - start).toFixed(1) + 's selected';
     selectedSeconds.value = videoDuration;
-  }, [video, selectedSeconds]);
+
+    leftOffset.value = 0;
+    rightOffset.value = 0;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [videoConfig, selectedSeconds]);
 
   const context: TrimmerEdgeWorkletContext = {
     video,

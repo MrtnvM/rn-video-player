@@ -1,7 +1,7 @@
-import {useCallback, useMemo, useState} from 'react';
+import {useMemo, useState} from 'react';
+import {useSharedValue} from 'react-native-reanimated';
 import {videos} from '../mocks/videos_mocks';
 import {createNewVideoConfig, VideoConfigMap} from '../models/video_config';
-import {Seconds} from '../models/video_data';
 
 export const useVideoState = () => {
   const [selectedVideo, setSelectedVideo] = useState(videos[0]);
@@ -14,30 +14,15 @@ export const useVideoState = () => {
       }, {}),
     [],
   );
-  const [videoConfigMap, setVideoConfigMap] = useState<VideoConfigMap>(
-    initialVideoConfigMap,
-  );
-
-  const selectVideoInterval = useCallback(
-    (params: {videoId: number; start: Seconds; end: Seconds}) => {
-      const {videoId, start, end} = params;
-      const videoConfig = videoConfigMap[videoId];
-      videoConfig.selectedInterval = {start, end};
-      setVideoConfigMap({...videoConfigMap, [videoId]: videoConfig});
-
-      console.log(videoConfig);
-    },
-    [videoConfigMap, setVideoConfigMap],
-  );
+  const videoConfigMap = useSharedValue<VideoConfigMap>(initialVideoConfigMap);
 
   return {
     videos,
     selectedVideo: {
       video: selectedVideo,
-      config: videoConfigMap[selectedVideo.id],
+      config: videoConfigMap.value[selectedVideo.id],
     },
     selectVideo: setSelectedVideo,
     videoConfigMap,
-    selectVideoInterval,
   };
 };

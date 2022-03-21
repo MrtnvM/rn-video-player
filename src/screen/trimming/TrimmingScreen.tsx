@@ -26,7 +26,7 @@ export const TrimmingScreen = () => {
       <SafeAreaView>
         <TrimmerBar
           video={videoState.selectedVideo.video}
-          selectVideoInterval={videoState.selectVideoInterval}
+          videoConfig={videoState.selectedVideo.config}
         />
         <DragAndDropLabel />
         <VideoList
