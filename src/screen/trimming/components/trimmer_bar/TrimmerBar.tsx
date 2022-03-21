@@ -1,5 +1,6 @@
 import React, {useCallback, useState} from 'react';
 import {Dimensions, LayoutChangeEvent, StyleSheet, View} from 'react-native';
+import {VideoConfig} from '../../models/video_config';
 import {Seconds, VideoData} from '../../models/video_data';
 import {TrimmerEdgesView} from './components/TrimmerEdgesView';
 
@@ -7,6 +8,7 @@ const HORIZONTAL_MARGIN = 12;
 
 type Props = {
   video: VideoData;
+  videoConfig: VideoConfig;
   selectVideoInterval(params: {
     videoId: number;
     start: Seconds;
@@ -15,7 +17,7 @@ type Props = {
 };
 
 export const TrimmerBar = (props: Props) => {
-  const {video, selectVideoInterval} = props;
+  const {video, videoConfig, selectVideoInterval} = props;
   const [maxWidth, setMaxWidth] = useState(
     Dimensions.get('window').width - HORIZONTAL_MARGIN * 2,
   );
@@ -28,6 +30,7 @@ export const TrimmerBar = (props: Props) => {
     <View style={styles.container} onLayout={updateMaxWidth}>
       <TrimmerEdgesView
         video={video}
+        videoConfig={videoConfig}
         maxWidth={maxWidth}
         selectVideoInterval={selectVideoInterval}
       />

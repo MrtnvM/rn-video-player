@@ -10,10 +10,16 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import {ReText} from 'react-native-redash';
+import {VideoConfig} from '../../../models/video_config';
 import {Seconds, VideoData} from '../../../models/video_data';
-import {EDGE_WIDTH} from '../trimmer_bar_consts';
 import {ThumbnailsBackground} from './ThumbnailsBackground';
 import {LeftTrimmerBorder, RightTrimmerBorder} from './TrimmerBorders';
+import {
+  TrimmerEdgeWorkletContext,
+  updateLeftOffsetWorklet,
+  updateRightOffsetWorklet,
+  updateSelectedSecondsWorklet,
+} from './TrimmerEdgesView.utils';
 
 type ContextType = {
   leftOffset: number;
@@ -22,6 +28,7 @@ type ContextType = {
 
 export const TrimmerEdgesView = (props: {
   video: VideoData;
+  videoConfig: VideoConfig;
   maxWidth: number;
   selectVideoInterval(params: {
     videoId: number;
@@ -29,7 +36,7 @@ export const TrimmerEdgesView = (props: {
     end: Seconds;
   }): void;
 }) => {
-  const {video, maxWidth} = props;
+  const {video, videoConfig, maxWidth} = props;
 
   const selectedSeconds = useSharedValue('');
   const leftOffset = useSharedValue(0);
@@ -40,30 +47,25 @@ export const TrimmerEdgesView = (props: {
     selectedSeconds.value = videoDuration;
   }, [video, selectedSeconds]);
 
+  const context: TrimmerEdgeWorkletContext = {
+    video,
+    videoConfig,
+    maxWidth,
+    leftOffset,
+    rightOffset,
+    selectedSeconds,
+  };
+
   const leftEdgePanEvent = useAnimatedGestureHandler<
     PanGestureHandlerGestureEvent,
     ContextType
   >({
-    onStart: (event, context) => {
-      context.leftOffset = leftOffset.value;
+    onStart: (event, eventContext) => {
+      eventContext.leftOffset = leftOffset.value;
     },
-    onActive: (event, context) => {
-      const calculatedOffset = event.translationX + context.leftOffset;
-      const maxPossibleOffset = maxWidth + rightOffset.value - EDGE_WIDTH / 2;
-      const newOffset = Math.min(
-        Math.max(calculatedOffset, 0),
-        maxPossibleOffset,
-      );
-
-      leftOffset.value = newOffset;
-
-      const totalSeconds = video.length;
-      const start = totalSeconds * (leftOffset.value / maxWidth);
-      const end =
-        totalSeconds - totalSeconds * (Math.abs(rightOffset.value) / maxWidth);
-
-      const seconds = (end - start).toFixed(1) + 's selected';
-      selectedSeconds.value = seconds;
+    onActive: (event, eventContext) => {
+      updateLeftOffsetWorklet({context: context, event, eventContext});
+      updateSelectedSecondsWorklet({context});
     },
   });
 
@@ -71,26 +73,12 @@ export const TrimmerEdgesView = (props: {
     PanGestureHandlerGestureEvent,
     ContextType
   >({
-    onStart: (event, context) => {
-      context.rightOffset = rightOffset.value;
+    onStart: (event, eventContext) => {
+      eventContext.rightOffset = rightOffset.value;
     },
-    onActive: (event, context) => {
-      const calculatedOffset = event.translationX + context.rightOffset;
-      const maxPossibleOffset = -maxWidth + leftOffset.value + EDGE_WIDTH / 2;
-      const newOffset = Math.min(
-        Math.max(calculatedOffset, maxPossibleOffset),
-        0,
-      );
-
-      rightOffset.value = newOffset;
-
-      const totalSeconds = video.length;
-      const start = totalSeconds * (leftOffset.value / maxWidth);
-      const end =
-        totalSeconds - totalSeconds * (Math.abs(rightOffset.value) / maxWidth);
-
-      const seconds = (end - start).toFixed(1) + 's selected';
-      selectedSeconds.value = seconds;
+    onActive: (event, eventContext) => {
+      updateRightOffsetWorklet({context: context, event, eventContext});
+      updateSelectedSecondsWorklet({context});
     },
   });
 
@@ -98,36 +86,14 @@ export const TrimmerEdgesView = (props: {
     PanGestureHandlerGestureEvent,
     ContextType
   >({
-    onStart: (event, context) => {
-      context.leftOffset = leftOffset.value;
-      context.rightOffset = rightOffset.value;
+    onStart: (event, eventContext) => {
+      eventContext.leftOffset = leftOffset.value;
+      eventContext.rightOffset = rightOffset.value;
     },
-    onActive: (event, context) => {
-      const calculatedLeftOffset = event.translationX + context.leftOffset;
-      const maxPossibleLeftOffset =
-        maxWidth + rightOffset.value - EDGE_WIDTH / 2;
-      const newLeftOffset = Math.min(
-        Math.max(calculatedLeftOffset, 0),
-        maxPossibleLeftOffset,
-      );
-      leftOffset.value = newLeftOffset;
-
-      const calculatedRightOffset = event.translationX + context.rightOffset;
-      const maxPossibleRightOffset =
-        -maxWidth + leftOffset.value + EDGE_WIDTH / 2;
-      const newRightOffset = Math.min(
-        Math.max(calculatedRightOffset, maxPossibleRightOffset),
-        0,
-      );
-      rightOffset.value = newRightOffset;
-
-      const totalSeconds = video.length;
-      const start = totalSeconds * (leftOffset.value / maxWidth);
-      const end =
-        totalSeconds - totalSeconds * (Math.abs(rightOffset.value) / maxWidth);
-
-      const seconds = (end - start).toFixed(1) + 's selected';
-      selectedSeconds.value = seconds;
+    onActive: (event, eventContext) => {
+      updateLeftOffsetWorklet({context: context, event, eventContext});
+      updateRightOffsetWorklet({context: context, event, eventContext});
+      updateSelectedSecondsWorklet({context});
     },
   });
 
